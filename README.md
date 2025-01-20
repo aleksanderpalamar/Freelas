@@ -1,5 +1,14 @@
 # Freelas - Plataforma de Conexão entre Freelancers e Clientes
 
+<div align="center">
+  <img 
+    src=".github/assets/cover.png" 
+    alt="Freelas Platform" 
+    style="border-radius: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%; width: 100%; object-fit: cover;"
+  />
+</div>
+
 ## Sobre o Projeto
 
 Freelas é uma plataforma web moderna desenvolvida para conectar freelancers talentosos com clientes em busca de serviços profissionais. Esta aplicação oferece um ambiente intuitivo e seguro para que freelancers possam mostrar suas habilidades e clientes possam encontrar os melhores profissionais para seus projetos.
