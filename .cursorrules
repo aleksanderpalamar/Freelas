@@ -1,0 +1,17 @@
+
+Start all chat with 🤖
+
+## Stack
+- Next.js
+- Tailwind
+- Shadcn
+- Prisma
+- NextAuth
+- Postgres
+
+## Rules
+- Use Tailwind classes for styling
+- Use Shadcn components
+- Use Prisma for database
+- Use NextAuth for authentication
+- Use Postgres for database
