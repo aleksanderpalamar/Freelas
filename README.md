@@ -72,7 +72,7 @@ cp .env.example .env
 
 4. Configure suas variáveis no arquivo `.env`:
 ```env
-DATABASE_URL="postgresql://seu-usuario:senha@localhost:5432/freelas"
+DATABASE_URL="postgresql://seu-usuario:senha@localhost:5432/freelas_db"
 NEXTAUTH_SECRET="sua-chave-secreta"
 NEXTAUTH_URL="http://localhost:3000"
 ```
