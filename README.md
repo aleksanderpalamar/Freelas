@@ -72,9 +72,16 @@ cp .env.example .env
 
 4. Configure suas variáveis no arquivo `.env`:
 ```env
-DATABASE_URL="postgresql://seu-usuario:senha@localhost:5432/freelas_db"
-NEXTAUTH_SECRET="sua-chave-secreta"
-NEXTAUTH_URL="http://localhost:3000"
+#Database
+DATABASE_URL=postgresql://seu-usuario:senha@localhost:5432/freelas_db
+
+#NextAuth
+NEXTAUTH_SECRET=sua-chave-secreta
+NEXTAUTH_URL=http://localhost:3000
+
+#Google Provider
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
 
 5. Execute as migrações do banco de dados:
