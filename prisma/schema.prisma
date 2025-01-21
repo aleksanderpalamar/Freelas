@@ -57,6 +57,7 @@ model User {
   proposals       Proposal[]
   reviewsGiven    Review[]   @relation("ReviewGiver")
   reviewsReceived Review[]   @relation("ReviewReceiver")
+  Freela          Freela[]
 }
 
 model VerificationToken {
@@ -108,4 +109,17 @@ model Review {
   giver      User     @relation("ReviewGiver", fields: [giverId], references: [id])
   receiverId String
   receiver   User     @relation("ReviewReceiver", fields: [receiverId], references: [id])
+}
+
+model Freela {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  duration    String
+  status      String   @default("open") // 'open', 'in_progress', 'completed'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id])
 }
