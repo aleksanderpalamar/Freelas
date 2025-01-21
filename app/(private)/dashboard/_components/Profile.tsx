@@ -13,8 +13,8 @@ export function Profile() {
   const skills = session.user.skills || []
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex flex-col items-center">
+    <div className="p-6">
+      <div className="flex flex-col items-center bg-blue-50 p-2 rounded-lg">
         <div className="relative w-32 h-32 mb-4">
           <Image
             src={session.user.image || '/assets/placeholder.svg?height=128&width=128'}
