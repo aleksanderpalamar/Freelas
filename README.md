@@ -143,5 +143,3 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE.md](L
 ## Contato
 
 [Aleksander Palamar](https://aleksanderpalamar.dev)
-
-Link do Projeto: [https://github.com/aleksanderpalamar/Freelas](https://github.com/aleksanderpalamar/Freelas)
