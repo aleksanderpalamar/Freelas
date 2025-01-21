@@ -8,8 +8,6 @@ export function Profile() {
 
   if (!session?.user) return null
 
-  console.log('Session user:', session.user)
-
   const skills = session.user.skills || []
 
   return (

@@ -4,6 +4,17 @@ import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
+interface UpdateData {
+  name?: string;
+  email?: string;
+  password?: string;
+  description?: string;
+  skills?: string;
+  image?: string;
+  userType?: string;
+  whatsapp?: string;
+}
+
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -47,7 +58,7 @@ export async function PUT(req: Request) {
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: UpdateData = {}
     
     if (name) updateData.name = name
     if (email) updateData.email = email

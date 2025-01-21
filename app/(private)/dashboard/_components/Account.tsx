@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
@@ -26,13 +25,23 @@ interface CustomSession {
   expires: string
 }
 
+interface UpdateData {
+  name?: string
+  email?: string
+  password?: string
+  description?: string
+  skills?: string[]
+  whatsapp?: string
+  image?: string
+  typeUser?: string
+}
+
 export function Account() {
   const { data: session, status, update } = useSession() as { 
     data: CustomSession | null
     status: string
-    update: (data: any) => Promise<any>
+    update: (data: UpdateData) => Promise<CustomSession>
   }
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -98,16 +107,12 @@ export function Account() {
       if (response.ok) {
         // Atualiza a sessão com os novos dados
         await update({
-          ...session,
-          user: {
-            ...session?.user,
-            name: data.user.name,
-            email: data.user.email,
-            description: data.user.description,
-            skills: data.user.skills,
-            whatsapp: data.user.whatsapp,
-            image: data.user.image,
-          }
+          name: data.user.name,
+          email: data.user.email,
+          description: data.user.description,
+          skills: data.user.skills,
+          whatsapp: data.user.whatsapp,
+          image: data.user.image,
         })
         
         toast.success('Perfil atualizado com sucesso')
@@ -122,7 +127,7 @@ export function Account() {
       } else {
         toast.error(data.error || 'Falha ao atualizar perfil')
       }
-    } catch (error) {
+    } catch {
       toast.error('Erro ao atualizar perfil')
     } finally {
       setIsLoading(false)
@@ -164,7 +169,7 @@ export function Account() {
       } else {
         toast.error(data.error || 'Falha ao publicar freela')
       }
-    } catch (error) {
+    } catch {
       toast.error('Erro ao publicar freela')
     } finally {
       setIsLoading(false)

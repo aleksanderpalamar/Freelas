@@ -1,9 +1,15 @@
-import { NextAuthOptions } from "next-auth"
+import { NextAuthOptions, User } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcrypt"
+
+interface CustomUser extends User {
+  userType: string
+  skills: string[]
+  whatsapp: string | null
+}
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
@@ -19,7 +25,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials): Promise<any> {
+      async authorize(credentials): Promise<CustomUser | null> {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null
@@ -57,13 +63,12 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: user.id,
-            email: user.email,
-            name: user.name,
+            email: user.email || undefined,
+            name: user.name || undefined,
             userType: user.userType,
-            description: user.description || '',
             skills: user.skills ? user.skills.split(',').filter(Boolean) : [],
-            image: user.image || '',
-            whatsapp: user.whatsapp || null
+            whatsapp: user.whatsapp,
+            image: user.image || undefined
           }
         } catch (error) {
           console.error('Auth error:', error)
