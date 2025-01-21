@@ -131,9 +131,9 @@ O projeto utiliza Prisma como ORM com PostgreSQL. Os principais modelos incluem:
 ## Contribuição
 
 1. Faça um Fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/NovaFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some NovaFeature'`)
-4. Push para a branch (`git push origin feature/NovaFeature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/NewFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some NewFeature'`)
+4. Push para a branch (`git push origin feature/NewFeature`)
 5. Abra um Pull Request
 
 ## Licença
