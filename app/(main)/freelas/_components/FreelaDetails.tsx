@@ -136,7 +136,7 @@ export function FreelaDetails({ freela }: FreelaDetailsProps) {
         <div className="p-8">
           {/* Descrição */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sobre o Projeto</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sobre o Freela</h3>
             <div className="prose prose-blue max-w-none">
               <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{freela.description}</p>
             </div>

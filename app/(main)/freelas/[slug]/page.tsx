@@ -1,16 +1,18 @@
-
 import { getFreela } from '@/function/getFreela'
 import { notFound } from 'next/navigation'
 import { FreelaDetails } from '../_components/FreelaDetails'
 
+export const revalidate = 0
+
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function FreelaPage({ params }: PageProps) {
-  const freela = await getFreela(params.slug)
+  const { slug } = await params
+  const freela = await getFreela(slug)
 
   if (!freela) {
     notFound()
