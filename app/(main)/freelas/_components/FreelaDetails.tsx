@@ -28,37 +28,8 @@ interface FreelaDetailsProps {
   freela: Freela
 }
 
-interface Proposal {
-  id: string
-  content: string
-  price: number
-  deliveryTime: number
-  status: 'pending' | 'accepted' | 'rejected'
-  createdAt: string
-  updatedAt: string
-  projectId: string
-  freelancerId: string
-  project?: Project  // campo relacional opcional
-  freelancer?: User  // campo relacional opcional
-}
-
-interface Project {
-  id: string
-  title: string
-  description: string
-  category: string
-  duration: string
-}
-
-interface User {
-  id: string
-  name: string | null
-  email: string | null
-}
-
 export function FreelaDetails({ freela }: FreelaDetailsProps) {
   const { data: session } = useSession()
-  const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [proposal, setProposal] = useState({
     description: '',
