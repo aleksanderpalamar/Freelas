@@ -88,14 +88,16 @@ model Proposal {
   id           String   @id @default(cuid())
   content      String
   price        Float
-  deliveryTime Int // in days
-  status       String // 'pending', 'accepted', 'rejected'
+  deliveryTime Int
+  status       String   @default("pending")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  projectId    String
-  project      Project  @relation(fields: [projectId], references: [id])
+  freelaId     String
+  freela       Freela   @relation(fields: [freelaId], references: [id])
   freelancerId String
   freelancer   User     @relation(fields: [freelancerId], references: [id])
+
+  Project Project[]
 }
 
 model Review {
@@ -112,14 +114,15 @@ model Review {
 }
 
 model Freela {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   description String
   category    String
   duration    String
-  status      String   @default("open") // 'open', 'in_progress', 'completed'
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      String     @default("open")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   clientId    String
-  client      User     @relation(fields: [clientId], references: [id])
+  client      User       @relation(fields: [clientId], references: [id])
+  proposals   Proposal[]
 }

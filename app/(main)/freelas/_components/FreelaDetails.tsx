@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
@@ -28,45 +28,84 @@ interface FreelaDetailsProps {
   freela: Freela
 }
 
+interface Proposal {
+  id: string
+  content: string
+  price: number
+  deliveryTime: number
+  status: 'pending' | 'accepted' | 'rejected'
+  createdAt: string
+  updatedAt: string
+  projectId: string
+  freelancerId: string
+  project?: Project  // campo relacional opcional
+  freelancer?: User  // campo relacional opcional
+}
+
+interface Project {
+  id: string
+  title: string
+  description: string
+  category: string
+  duration: string
+}
+
+interface User {
+  id: string
+  name: string | null
+  email: string | null
+}
+
 export function FreelaDetails({ freela }: FreelaDetailsProps) {
   const { data: session } = useSession()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [proposal, setProposal] = useState({
+    description: '',
+    price: 0,
+    deliveryTime: 0
+  })
 
-  const handleApply = async () => {
-    if (!session) {
-      toast.error('Você precisa estar logado para se candidatar')
+  async function handleSubmitProposal(e: FormEvent) {
+    e.preventDefault()
+
+    if (!session?.user) {
+      toast.error('Você precisa estar logado para enviar uma proposta')
       return
     }
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/proposals', {
+      const res = await fetch('/api/proposals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          freelaId: freela.id
+          freelaId: freela.id,
+          content: proposal.description,
+          price: proposal.price,
+          deliveryTime: proposal.deliveryTime
         })
       })
 
-      if (response.ok) {
-        toast.success('Candidatura enviada com sucesso!')
-      } else {
-        const data = await response.json()
-        toast.error(data.error || 'Erro ao enviar candidatura')
+      if (!res.ok) {
+        throw new Error('Erro ao enviar proposta')
       }
-    } catch {
-      toast.error('Erro ao enviar candidatura')
+
+      toast.success('Proposta enviada com sucesso!')
+      setProposal({ description: '', price: 0, deliveryTime: 0 })
+    } catch (error) {
+      toast.error('Erro ao enviar proposta')
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-4">
       {/* Card Principal */}
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
-        {/* Header com Gradiente */}
+        {/* Header */}
         <div className="relative px-8 py-16 bg-blue-500 text-white">
           <div className="absolute inset-0 bg-black opacity-5 pattern-grid-lg"></div>
           <div className="relative">
@@ -142,28 +181,71 @@ export function FreelaDetails({ freela }: FreelaDetailsProps) {
             </div>
           </div>
 
-          {/* Botão de Candidatura */}
-          {session && session.user.id !== freela.user?.id && (
-            <div className="flex justify-center pt-6 border-t border-gray-100">
-              <button
-                onClick={handleApply}
-                disabled={isLoading}
-                className="group relative inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <span className="flex items-center">
-                  {!isLoading && (
-                    <svg className="w-5 h-5 mr-2 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                    </svg>
-                  )}
-                  {isLoading ? (
-                    <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                  ) : null}
-                  <span className="group-hover:translate-x-1 transition-transform">
-                    Candidatar-se ao Projeto
-                  </span>
-                </span>
-              </button>
+          {/* Enviar Proposta */}
+          {session?.user && freela.clientId === session.user.id && (
+            <div className="space-y-6">
+              <h3 className="font-semibold text-gray-900 mb-4 border-t border-gray-100 pt-6">Enviar Proposta</h3>
+              <div className="flex justify-center pt-6 ">
+                <form onSubmit={handleSubmitProposal} className="w-full max-w-2xl space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Descreva sua proposta
+                    </label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm resize-none"
+                      placeholder="Descreva sua proposta detalhadamente Ex: Gostaria de desenvolver um site para você..."
+                      rows={4}
+                      value={proposal.description}
+                      onChange={(e) => setProposal(prev => ({ ...prev, description: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Valor (R$)
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                        placeholder="Ex: 1000"
+                        value={proposal.price}
+                        onChange={(e) => setProposal(prev => ({ ...prev, price: Number(e.target.value) }))}
+                        min="0"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Prazo de entrega (dias)
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                        placeholder="Ex: 7"
+                        value={proposal.deliveryTime}
+                        onChange={(e) => setProposal(prev => ({ ...prev, deliveryTime: Number(e.target.value) }))}
+                        min="1"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-fit ml-auto bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                    ) : (
+                      'Enviar Proposta'
+                    )}
+                  </button>
+                </form>
+              </div>
             </div>
           )}
         </div>
