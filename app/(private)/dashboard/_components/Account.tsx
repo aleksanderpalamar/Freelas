@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
 
@@ -304,7 +304,7 @@ export function Account() {
                   onClick={() => removeSkill(skill)}
                   className="ml-2 inline-flex items-center p-0.5 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none"
                 >
-                  ×
+                  <X className="h-4 w-4" />
                 </button>
               </span>
             ))}
