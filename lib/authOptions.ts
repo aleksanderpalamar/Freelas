@@ -1,14 +1,14 @@
-import { NextAuthOptions, User } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import prisma from "@/lib/prisma"
-import bcrypt from "bcrypt"
+import { NextAuthOptions, User } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
 interface CustomUser extends User {
-  userType: string
-  skills: string[]
-  whatsapp: string | null
+  userType: string;
+  skills: string[];
+  whatsapp: string | null;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -23,17 +23,17 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials): Promise<CustomUser | null> {
         try {
           if (!credentials?.email || !credentials?.password) {
-            return null
+            return null;
           }
 
           const user = await prisma.user.findUnique({
             where: {
-              email: credentials.email
+              email: credentials.email,
             },
             select: {
               id: true,
@@ -45,20 +45,20 @@ export const authOptions: NextAuthOptions = {
               skills: true,
               image: true,
               whatsapp: true,
-            }
-          })
+            },
+          });
 
           if (!user || !user.password) {
-            return null
+            return null;
           }
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
-          )
+          );
 
           if (!isPasswordValid) {
-            return null
+            return null;
           }
 
           return {
@@ -66,37 +66,39 @@ export const authOptions: NextAuthOptions = {
             email: user.email || undefined,
             name: user.name || undefined,
             userType: user.userType,
-            skills: user.skills ? user.skills.split(',').filter(Boolean) : [],
+            skills: user.skills ? user.skills.split(",").filter(Boolean) : [],
             whatsapp: user.whatsapp,
-            image: user.image || undefined
-          }
+            image: user.image || undefined,
+          };
         } catch (error) {
-          console.error('Auth error:', error)
-          return null
+          console.error("Auth error:", error);
+          return null;
         }
-      }
+      },
     }),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'credentials') {
-        return true
+      if (account?.provider === "credentials") {
+        return true;
       }
 
-      if (account?.provider === 'google') {
+      if (account?.provider === "google") {
         try {
           const existingUser = await prisma.user.findUnique({
             where: { email: user.email! },
-          })
+          });
 
           if (existingUser) {
             // Se o usuário existe, atualize os dados da sessão
-            user.id = existingUser.id
-            user.userType = existingUser.userType
-            user.description = existingUser.description || ''
-            user.skills = existingUser.skills ? existingUser.skills.split(',').filter(Boolean) : []
-            user.whatsapp = existingUser.whatsapp || null
-            return true
+            user.id = existingUser.id;
+            user.userType = existingUser.userType;
+            user.description = existingUser.description || "";
+            user.skills = existingUser.skills
+              ? existingUser.skills.split(",").filter(Boolean)
+              : [];
+            user.whatsapp = existingUser.whatsapp || null;
+            return true;
           }
 
           // Se é um novo usuário do Google, crie com dados padrão
@@ -105,76 +107,86 @@ export const authOptions: NextAuthOptions = {
               email: user.email!,
               name: user.name!,
               image: user.image!,
-              userType: 'freelancer',
-              skills: '',
-              description: '',
-              whatsapp: null
-            }
-          })
+              userType: "freelancer",
+              skills: "",
+              description: "",
+              whatsapp: null,
+            },
+          });
 
-          user.id = newUser.id
-          user.userType = newUser.userType
-          user.description = newUser.description || ''
-          user.skills = []
-          user.whatsapp = null
-          return true
+          user.id = newUser.id;
+          user.userType = newUser.userType;
+          user.description = newUser.description || "";
+          user.skills = [];
+          user.whatsapp = null;
+          return true;
         } catch (error) {
-          console.error("Erro no signIn:", error)
-          return false
+          console.error("Erro no signIn:", error);
+          return false;
         }
       }
 
-      return !!user.email
+      return !!user.email;
     },
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update" && session?.user) {
         // Atualiza o token quando a sessão é atualizada
+        console.log(
+          "JWT Trigger Update - session.user.description:",
+          session.user.description
+        );
         return {
           ...token,
           name: session.user.name,
           email: session.user.email,
           userType: session.user.userType,
           description: session.user.description || null,
-          skills: typeof session.user.skills === 'string' ? session.user.skills.split(',').filter(Boolean) : (session.user.skills || []),
+          skills:
+            typeof session.user.skills === "string"
+              ? session.user.skills.split(",").filter(Boolean)
+              : session.user.skills || [],
           image: session.user.image || null,
-          whatsapp: session.user.whatsapp || null
-        }
+          whatsapp: session.user.whatsapp || null,
+        };
       }
-      
+
       if (user) {
         // Garante que todos os campos estejam presentes no token
-        token.id = user.id
-        token.email = user.email || null
-        token.name = user.name || null
-        token.userType = user.userType
-        token.description = user.description || null
-        token.skills = typeof user.skills === 'string' ? user.skills.split(',').filter(Boolean) : (user.skills || [])
-        token.image = user.image || null
-        token.whatsapp = user.whatsapp || null
+        token.id = user.id;
+        token.email = user.email || null;
+        token.name = user.name || null;
+        token.userType = user.userType;
+        token.description = user.description || null;
+        token.skills =
+          typeof user.skills === "string"
+            ? user.skills.split(",").filter(Boolean)
+            : user.skills || [];
+        token.image = user.image || null;
+        token.whatsapp = user.whatsapp || null;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
         // Garante que todos os campos estejam presentes na sessão
-        session.user.id = token.id as string
-        session.user.email = token.email as string
-        session.user.name = token.name as string
-        session.user.userType = token.userType as string
-        session.user.description = token.description as string
-        session.user.skills = token.skills as string[]
-        session.user.image = token.image as string
-        session.user.whatsapp = token.whatsapp as string | null
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.userType = token.userType as string;
+        session.user.description = token.description as string;
+        session.user.skills = token.skills as string[];
+        session.user.image = token.image as string;
+        session.user.whatsapp = token.whatsapp as string | null;
       }
-      return session
-    }
+      return session;
+    },
   },
   pages: {
-    signIn: '/auth/signin',
-    error: '/auth/signin',
+    signIn: "/auth/signin",
+    error: "/auth/signin",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
-}
+};
