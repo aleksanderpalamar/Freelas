@@ -63,7 +63,7 @@ export async function PUT(req: Request) {
     if (name) updateData.name = name
     if (email) updateData.email = email
     if (newPassword) updateData.password = await bcrypt.hash(newPassword, 10)
-    if (description) updateData.description = description
+    if (description !== undefined) updateData.description = description
     if (Array.isArray(skills)) updateData.skills = skills.join(',') // Convertendo array para string
     if (image) updateData.image = image
     if (userType) updateData.userType = userType

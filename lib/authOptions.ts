@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 
 interface CustomUser extends User {
   userType: string;
+  description: string | null;
   skills: string[];
   whatsapp: string | null;
 }
@@ -66,8 +67,9 @@ export const authOptions: NextAuthOptions = {
             email: user.email || undefined,
             name: user.name || undefined,
             userType: user.userType,
+            description: user.description || "",
             skills: user.skills ? user.skills.split(",").filter(Boolean) : [],
-            whatsapp: user.whatsapp,
+            whatsapp: user.whatsapp || null,
             image: user.image || undefined,
           };
         } catch (error) {
@@ -131,14 +133,10 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update" && session?.user) {
         // Atualiza o token quando a sessão é atualizada
-        console.log(
-          "JWT Trigger Update - session.user.description:",
-          session.user.description
-        );
         return {
           ...token,
-          name: session.user.name,
-          email: session.user.email,
+          name: session.user.name || null,
+          email: session.user.email || null,
           userType: session.user.userType,
           description: session.user.description || null,
           skills:
@@ -170,13 +168,13 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         // Garante que todos os campos estejam presentes na sessão
         session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
+        session.user.email = token.email;
+        session.user.name = token.name;
         session.user.userType = token.userType as string;
-        session.user.description = token.description as string;
+        session.user.description = token.description || "";
         session.user.skills = token.skills as string[];
-        session.user.image = token.image as string;
-        session.user.whatsapp = token.whatsapp as string | null;
+        session.user.image = token.image;
+        session.user.whatsapp = token.whatsapp;
       }
       return session;
     },
