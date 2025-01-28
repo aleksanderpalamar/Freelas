@@ -2,7 +2,7 @@ import { authOptions } from "@/lib/authOptions"
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 
-export const MyFreelas = async () => {
+export const FreelasReceived = async () => {
   const session = await getServerSession(authOptions)
 
   const proposals = await prisma.proposal.findMany({

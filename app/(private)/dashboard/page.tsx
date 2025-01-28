@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/authOptions"
 import { getServerSession } from "next-auth/next"
-import { MyFreelas } from "./_components/MyFreelas"
+import { FreelasReceived } from "./_components/FreelasReceived"
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -15,7 +15,7 @@ export default async function DashboardPage() {
         Propostas recebidas
       </h2>
       {/* Proposals list */}
-      <MyFreelas />
+      <FreelasReceived />
     </div>
   )
 }
