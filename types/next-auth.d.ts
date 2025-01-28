@@ -18,9 +18,9 @@ declare module "next-auth" {
 
   interface User extends DefaultUser {
     userType: string
-    description?: string
+    description: string | null
     skills: string[] | string
-    image?: string
+    image?: string | null
     whatsapp: string | null
   }
 }
