@@ -100,19 +100,6 @@ export function FreelaDetails({ freela }: FreelaDetailsProps) {
                 <h3 className="text-xl font-medium text-white/90 mb-1">
                   {freela.user?.name || 'Anônimo'}
                 </h3>
-                {freela.user?.whatsapp ? (
-                  <a
-                    href={`https://wa.me/${freela.user.whatsapp}?text=Olá, gostaria de saber mais sobre o projeto ${freela.title}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center font-bold text-sm text-emerald-500 hover:text-emerald-600 transition-colors"
-                  >
-                    <FaWhatsapp className='w-5 h-5 mr-2' />
-                    Conversar no WhatsApp
-                  </a>
-                ) : (
-                  <span className="text-sm text-white/60">{freela.user?.email}</span>
-                )}
               </div>
             </div>
 
