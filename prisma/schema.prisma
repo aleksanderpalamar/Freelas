@@ -41,9 +41,9 @@ model Session {
 }
 
 model User {
-  id              String     @id @default(cuid())
+  id              String         @id @default(cuid())
   name            String?
-  email           String?    @unique
+  email           String?        @unique
   emailVerified   DateTime?
   image           String?
   password        String?
@@ -55,9 +55,10 @@ model User {
   sessions        Session[]
   projects        Project[]
   proposals       Proposal[]
-  reviewsGiven    Review[]   @relation("ReviewGiver")
-  reviewsReceived Review[]   @relation("ReviewReceiver")
+  reviewsGiven    Review[]       @relation("ReviewGiver")
+  reviewsReceived Review[]       @relation("ReviewReceiver")
   Freela          Freela[]
+  notifications   Notification[]
 }
 
 model VerificationToken {
@@ -125,4 +126,16 @@ model Freela {
   clientId    String
   client      User       @relation(fields: [clientId], references: [id])
   proposals   Proposal[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  type      String // 'proposal_accepted', 'proposal_rejected', etc
+  createdAt DateTime @default(now())
+  userId    String
+  metadata  Json? // Para armazenar dados adicionais como freelancerId
+  user      User     @relation(fields: [userId], references: [id])
 }

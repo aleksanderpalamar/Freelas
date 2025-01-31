@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/authOptions"
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
+import { ProposalActions } from "../Actions/ProposalActions"
 
 export const FreelasReceived = async () => {
   const session = await getServerSession(authOptions)
@@ -10,7 +11,8 @@ export const FreelasReceived = async () => {
       freelancerId: session?.user?.id
     },
     include: {
-      freela: true
+      freela: true,
+      freelancer: true
     },
     orderBy: {
       createdAt: 'desc'
@@ -36,10 +38,23 @@ export const FreelasReceived = async () => {
 
           <p className="text-gray-600 mb-4">{proposal.content}</p>
 
-          <div className="flex gap-4 text-sm text-gray-500">
-            <span>Valor: R$ {proposal.price}</span>
-            <span>Prazo: {proposal.deliveryTime} dias</span>
-            <span>Enviado em: {new Date(proposal.createdAt).toLocaleDateString('pt-BR')}</span>
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4 text-sm text-gray-500">
+              <span>Valor: R$ {proposal.price}</span>
+              <span>Prazo: {proposal.deliveryTime} dias</span>
+              <span>Enviado em: {new Date(proposal.createdAt).toLocaleDateString('pt-BR')}</span>
+            </div>
+
+            <ProposalActions 
+              proposalId={proposal.id} 
+              status={proposal.status} 
+              freelancer={{
+                name: proposal.freelancer.name || '',
+                email: proposal.freelancer.email || '',
+                whatsapp: proposal.freelancer.whatsapp || '',
+                description: proposal.freelancer.description
+              }}
+            />
           </div>
         </div>
       ))}

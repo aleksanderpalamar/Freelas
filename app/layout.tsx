@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "@/provider/session-provider";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "sonner";
+import { Navbar } from "./_components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +32,8 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-blue-50 text-zinc-900`}
       >
         <NextAuthProvider>
+          <Navbar />
           <div className="flex flex-col min-h-screen">
-            <Header />
             <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8">
               {children}
             </main>
