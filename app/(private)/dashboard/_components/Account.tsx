@@ -7,6 +7,9 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import { PublishFreelaForm } from './PublishFreelaForm'
 import { UserSelection } from './UserSelection'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { useRouter } from 'next/navigation'
 
 // Adicionando a interface para o usuário
 interface User {
@@ -45,6 +48,8 @@ export function Account() {
     update: (data: UpdateData) => Promise<CustomSession>
   }
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,6 +67,7 @@ export function Account() {
     freelaCategory: '',
     freelaDuration: '30 dias'
   })
+  const router = useRouter()
 
   useEffect(() => {
     if (session?.user) {
@@ -152,6 +158,28 @@ export function Account() {
       ...prev,
       skills: prev.skills.filter(skill => skill !== skillToRemove)
     }))
+  }
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true)
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Conta excluída com sucesso')
+        router.push('/auth/signin')
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Erro ao excluir conta')
+      }
+    } catch (error) {
+      toast.error('Erro ao excluir conta')
+    } finally {
+      setIsDeleting(false)
+      setIsDialogOpen(false)
+    }
   }
 
   if (status === 'loading') {
@@ -337,7 +365,36 @@ export function Account() {
         {/* Publique um Freela - Apenas para clientes */}
         {formData.typeUser === 'cliente' && <PublishFreelaForm />}
 
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center pt-6 border-t">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="destructive">
+                Excluir Conta
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Você tem certeza?</DialogTitle>
+                <DialogDescription>
+                  Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta e removerá seus dados de nossos servidores, incluindo todos os seus freelas e propostas.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                >
+                  {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isDeleting ? 'Excluindo...' : 'Sim, excluir conta'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <button
             type="submit"
             disabled={isLoading}
