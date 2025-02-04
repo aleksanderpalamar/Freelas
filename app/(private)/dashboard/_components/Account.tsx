@@ -17,9 +17,8 @@ interface User {
   email: string | null
   name: string | null
   userType: string
-  typeUser: string
   description: string | null
-  skills: string[]
+  skills: string[] | string | null
   image: string | null
   whatsapp: string | null
 }
@@ -38,7 +37,28 @@ interface UpdateData {
   skills?: string[]
   whatsapp?: string
   image?: string
-  typeUser?: string
+  userType?: string
+  currentPassword?: string
+  newPassword?: string
+}
+
+// Adicionando a interface para o formData
+interface FormData {
+  name: string
+  email: string
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  description: string
+  skills: string[]
+  whatsapp: string
+  newSkill: string
+  image: string
+  userType: string
+  freelaTitle: string
+  freelaDescription: string
+  freelaCategory: string
+  freelaDuration: string
 }
 
 export function Account() {
@@ -50,18 +70,18 @@ export function Account() {
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
     description: '',
-    skills: [] as string[],
+    skills: [],
     whatsapp: '',
     newSkill: '',
     image: '',
-    typeUser: 'freelancer',
+    userType: 'freelancer',
     freelaTitle: '',
     freelaDescription: '',
     freelaCategory: '',
@@ -71,16 +91,33 @@ export function Account() {
 
   useEffect(() => {
     if (session?.user) {
-      setFormData(prev => ({
-        ...prev,
-        name: session.user.name || '',
-        email: session.user.email || '',
-        description: session.user.description || '',
-        skills: session.user.skills || [],
-        whatsapp: session.user.whatsapp || '',
-        image: session.user.image || '',
-        typeUser: session.user.typeUser || 'freelancer'
-      }))
+      // Busca os dados atuais do usuário
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(`/api/users/${session.user.id}`)
+          const userData = await response.json()
+          
+          const userSkills = userData.skills || []
+          const parsedSkills = Array.isArray(userSkills) ? userSkills :
+                             typeof userSkills === 'string' ? userSkills.split(',').filter(Boolean) : []
+
+          setFormData(prev => ({
+            ...prev,
+            name: userData.name || '',
+            email: userData.email || '',
+            description: userData.description || '',
+            skills: parsedSkills,
+            whatsapp: userData.whatsapp || '',
+            image: userData.image || '',
+            userType: userData.userType || 'freelancer'
+          }))
+        } catch (error) {
+          console.error('Erro ao carregar dados do usuário:', error)
+          toast.error('Erro ao carregar dados do usuário')
+        }
+      }
+
+      fetchUserData()
     }
   }, [session])
 
@@ -95,47 +132,62 @@ export function Account() {
     setIsLoading(true)
 
     try {
+      const updateData = {
+        name: formData.name,
+        email: formData.email,
+        currentPassword: formData.currentPassword || undefined,
+        newPassword: formData.newPassword || undefined,
+        description: formData.description,
+        skills: formData.skills,
+        whatsapp: formData.whatsapp,
+        image: formData.image,
+        userType: formData.userType
+      }
+
+      console.log('Dados enviados:', updateData)
+
       const response = await fetch('/api/user/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          currentPassword: formData.currentPassword || undefined,
-          newPassword: formData.newPassword || undefined,
-          description: formData.description,
-          skills: formData.skills,
-          whatsapp: formData.whatsapp,
-          image: formData.image
-        })
+        body: JSON.stringify(updateData)
       })
 
       const data = await response.json()
+      console.log('Dados recebidos:', data)
 
-      if (response.ok) {
-        // Atualiza a sessão com os novos dados
-        await update({
-          name: data.user.name,
-          email: data.user.email,
-          description: data.user.description,
-          skills: data.user.skills,
-          whatsapp: data.user.whatsapp,
-          image: data.user.image,
-        })
+      if (response.ok && data.user) {
+        // Atualiza a sessão com todos os dados
+        const sessionData = {
+          ...session?.user,
+          ...data.user,
+          skills: Array.isArray(data.user.skills) ? data.user.skills : 
+                 typeof data.user.skills === 'string' ? data.user.skills.split(',').filter(Boolean) : []
+        }
 
-        toast.success('Perfil atualizado com sucesso')
+        await update(sessionData)
 
-        // Limpa as senhas do formulário
+        // Atualiza o estado local com os novos dados
         setFormData(prev => ({
           ...prev,
+          name: data.user.name || '',
+          email: data.user.email || '',
+          description: data.user.description || '',
+          skills: Array.isArray(data.user.skills) ? data.user.skills : 
+                 typeof data.user.skills === 'string' ? data.user.skills.split(',').filter(Boolean) : [],
+          whatsapp: data.user.whatsapp || '',
+          image: data.user.image || '',
+          userType: data.user.userType || prev.userType,
           currentPassword: '',
           newPassword: '',
           confirmPassword: ''
         }))
+
+        toast.success('Perfil atualizado com sucesso')
       } else {
         toast.error(data.error || 'Falha ao atualizar perfil')
       }
-    } catch {
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error)
       toast.error('Erro ao atualizar perfil')
     } finally {
       setIsLoading(false)
@@ -282,7 +334,7 @@ export function Account() {
         <div className="space-y-4">
           <h2 className="text-lg font-medium text-gray-900">Habilidades</h2>
           <div className="flex flex-wrap gap-2">
-            {formData.skills.map(skill => (
+            {Array.isArray(formData.skills) && formData.skills.map(skill => (
               <span
                 key={skill}
                 className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
@@ -363,7 +415,7 @@ export function Account() {
         <UserSelection formData={formData} setFormData={setFormData} />
 
         {/* Publique um Freela - Apenas para clientes */}
-        {formData.typeUser === 'cliente' && <PublishFreelaForm />}
+        {formData.userType === 'cliente' && <PublishFreelaForm />}
 
         <div className="flex justify-between items-center pt-6 border-t">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

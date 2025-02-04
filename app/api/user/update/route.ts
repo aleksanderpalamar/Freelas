@@ -63,14 +63,37 @@ export async function PUT(req: Request) {
     if (name) updateData.name = name
     if (email) updateData.email = email
     if (newPassword) updateData.password = await bcrypt.hash(newPassword, 10)
-    if (description !== undefined) updateData.description = description
-    if (Array.isArray(skills)) updateData.skills = skills.join(',') // Convertendo array para string
+    if (description !== undefined && description !== null) updateData.description = description
+    if (Array.isArray(skills) && skills.length > 0) updateData.skills = skills.join(',')
     if (image) updateData.image = image
     if (userType) updateData.userType = userType
     if (whatsapp) updateData.whatsapp = whatsapp
 
+    // Busca os dados atuais do usuário
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        description: true,
+        skills: true,
+        image: true
+      }
+    })
+
+    // Mantém os dados existentes se não forem fornecidos novos
+    if (!updateData.description && currentUser?.description) {
+      updateData.description = currentUser.description
+    }
+    if (!updateData.skills && currentUser?.skills) {
+      updateData.skills = currentUser.skills
+    }
+    if (!updateData.image && currentUser?.image) {
+      updateData.image = currentUser.image
+    }
+
+    console.log('Dados para atualização:', updateData)
+
     // Update user
-    const updateUser = await prisma.user.update({
+    const user = await prisma.user.update({
       where: { 
         id: session.user.id 
       },
@@ -86,10 +109,18 @@ export async function PUT(req: Request) {
         whatsapp: true
       }
     })
+
+    console.log('Usuário atualizado:', user)
+
+    // Garante que skills seja um array antes de retornar
+    const formattedUser = {
+      ...user,
+      skills: user.skills ? user.skills.split(',').filter(Boolean) : []
+    }
     
     return NextResponse.json({
       message: 'Profile updated successfully',
-      user: updateUser
+      user: formattedUser
     })
   } catch (error) {
     console.error('Profile update error:', error)

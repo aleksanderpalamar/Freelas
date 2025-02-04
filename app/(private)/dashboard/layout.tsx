@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { LayoutDashboard, User, Settings } from 'lucide-react'
 
+export const revalidate = 0
+
 interface DashboardLayoutProps {
   children: ReactNode
 }

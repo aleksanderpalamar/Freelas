@@ -21,7 +21,10 @@ export async function GET(
         name: true,
         email: true,
         whatsapp: true,
-        description: true
+        description: true,
+        skills: true,
+        image: true,
+        userType: true
       }
     })
 
@@ -29,7 +32,13 @@ export async function GET(
       return new NextResponse("Usuário não encontrado", { status: 404 })
     }
 
-    return NextResponse.json(user)
+    // Formata as skills como array
+    const formattedUser = {
+      ...user,
+      skills: user.skills ? user.skills.split(',').filter(Boolean) : []
+    }
+
+    return NextResponse.json(formattedUser)
   } catch (error) {
     console.error("[USER_GET]", error)
     return new NextResponse("Erro interno", { status: 500 })

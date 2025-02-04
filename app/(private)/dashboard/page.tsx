@@ -2,6 +2,8 @@ import { authOptions } from "@/lib/authOptions"
 import { getServerSession } from "next-auth/next"
 import { FreelasReceived } from "./_components/FreelasReceived"
 
+export const revalidate = 0
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
 

@@ -14,7 +14,7 @@ interface UserSelectionProps {
     whatsapp: string
     newSkill: string
     image: string
-    typeUser: string
+    userType: string
     freelaTitle: string
     freelaDescription: string
     freelaCategory: string
@@ -32,7 +32,7 @@ interface UserSelectionProps {
     whatsapp: string
     newSkill: string
     image: string
-    typeUser: string
+    userType: string
     freelaTitle: string
     freelaDescription: string
     freelaCategory: string
@@ -47,8 +47,8 @@ export const UserSelection = ({ formData, setFormData }: UserSelectionProps) => 
       <div className="flex gap-4">
         <button
           type="button"
-          onClick={() => setFormData(prev => ({ ...prev, typeUser: 'freelancer' }))}
-          className={`px-4 py-2 rounded-md ${formData.typeUser === 'freelancer'
+          onClick={() => setFormData(prev => ({ ...prev, userType: 'freelancer' }))}
+          className={`px-4 py-2 rounded-md ${formData.userType === 'freelancer'
               ? 'bg-blue-600 text-white'
               : 'bg-gray-100 text-gray-700'
             }`}
@@ -57,8 +57,8 @@ export const UserSelection = ({ formData, setFormData }: UserSelectionProps) => 
         </button>
         <button
           type="button"
-          onClick={() => setFormData(prev => ({ ...prev, typeUser: 'cliente' }))}
-          className={`px-4 py-2 rounded-md ${formData.typeUser === 'cliente'
+          onClick={() => setFormData(prev => ({ ...prev, userType: 'cliente' }))}
+          className={`px-4 py-2 rounded-md ${formData.userType === 'cliente'
               ? 'bg-blue-600 text-white'
               : 'bg-gray-100 text-gray-700'
             }`}
